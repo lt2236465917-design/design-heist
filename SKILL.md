@@ -1,6 +1,6 @@
 ---
 name: design-heist
-description: Authorized web clone orchestration skill for turning a user-owned, licensed, or internal-reference webpage URL/screenshots into a high-fidelity local rebuild. Use when the user asks to clone, reproduce, reconstruct, pixel-match, or visually regression-test a website and wants the combined workflow of web-clone-prompt, GSAP motion implementation, verification-before-completion, and systematic-debugging. First produce or confirm a deterministic clone prompt, then build only after user confirmation, implement complex motion with GSAP when appropriate, verify with screenshots/build checks, and debug root causes before claiming completion. Do not use for unauthorized public reuse of third-party brands, assets, copy, paywalled content, or creator-center publishing automation.
+description: Authorized web clone orchestration skill for turning a user-owned, licensed, or internal-reference webpage URL, screenshots, or screen-recording video into a high-fidelity local rebuild. Use when the user asks to clone, reproduce, reconstruct, pixel-match, visually regression-test, or rebuild a website from URL evidence, image frames, or video frames and wants the combined workflow of web-clone-prompt, video keyframe extraction, GSAP motion implementation, verification-before-completion, and systematic-debugging. First produce or confirm a deterministic clone prompt, then build only after user confirmation, implement complex motion with GSAP when appropriate, verify with screenshots/build checks/frame comparisons, and debug root causes before claiming completion. Do not use for unauthorized public reuse of third-party brands, assets, copy, paywalled content, or creator-center publishing automation.
 ---
 
 # Design Heist
@@ -12,6 +12,7 @@ Use this as the top-level workflow for authorized website reconstruction. The jo
 This skill combines four existing capabilities:
 
 - `$web-clone-prompt` for deterministic clone prompts from URL or screenshots.
+- Video probe and keyframe extraction patterns adapted from local video skills such as `$embedded-captions`; do not invoke caption authoring unless the user asks for captions.
 - `$gsap-core`, `$gsap-react`, and `$gsap-scrolltrigger` for complex motion, timelines, scroll, parallax, and React cleanup.
 - `$verification-before-completion` before any completion claim.
 - `$systematic-debugging` whenever the clone diverges, fails, jitters, or breaks.
@@ -32,9 +33,42 @@ Identify the input mode:
 
 - URL: inspect DOM, computed styles, assets, fonts, scripts, runtime states, opening sequence, hover, scroll, and responsive behavior.
 - Screenshot: treat each image as a reference frame; visible pixels are facts, missing sections are labeled inference.
+- Video: extract representative keyframes first, then treat those frames as ordered evidence for layout, scroll position, hover states, opening animation, and motion timing. A video cannot provide DOM, real CSS variables, font files, or stable asset URLs by itself; label those as inferred unless also given a URL.
 - URL plus screenshots: use URL for exact values and screenshots for visual truth.
+- URL plus video: use URL for exact DOM/style/assets and video for timing, transitions, scroll continuity, hover/cursor behavior, and opening sequence.
 
 If authorization, publication intent, or asset reuse is ambiguous, state the safe assumption: internal reconstruction only, replace protected assets before public release.
+
+### Video Keyframe Intake
+
+When the input is a local video or screen recording, create an evidence folder in the active project or a temp workspace and extract frames before writing the clone prompt.
+
+Use `ffprobe` and `ffmpeg` when available:
+
+```bash
+ffprobe <video.mp4>
+ffmpeg -i <video.mp4> -vf "fps=1,scale=320:-1,tile=10x5" contact-sheet.png
+ffmpeg -ss <time> -i <video.mp4> -vframes 1 frame-<label>.png
+```
+
+Minimum frame set:
+
+- first stable frame after loading
+- main hero/rest state
+- key scroll anchors or section transitions
+- hover/cursor/menu states if visible
+- final frame or footer/end state
+- mobile/responsive state if the video includes it
+
+For short videos, sample at 20%, 50%, and 80% plus any obvious interaction moment. For longer videos, create a 1 fps contact sheet first, inspect it, then extract only meaningful frames.
+
+Video evidence rules:
+
+- Record timestamps for each extracted frame.
+- Mark whether each frame is a stable layout state or an in-between animation state.
+- Do not infer exact fonts, hidden DOM, or source asset URLs from video alone.
+- Use video primarily for motion timing, continuity, layer order, scroll behavior, and interaction states.
+- If the recording includes fast cuts, unrelated pages, or browser chrome that changes viewport size, split the evidence into separate sequences before prompt generation.
 
 ### 2. Generate The Clone Prompt
 
@@ -47,6 +81,7 @@ Invoke `$web-clone-prompt` behavior first. Produce a deterministic prompt that p
 - asset URLs or generation briefs, never `REPLACE-ME`
 - copy boundaries: transcribed only when authorized, otherwise rewritten/replaced
 - motion primitives: opening sequence, hover, cursor, scroll, canvas/WebGL, or inferred micro-motion
+- video-derived evidence frames with timestamps when video is provided
 - verification plan: desktop, mobile, full-page, interaction, and regression checkpoints
 
 Stop after the prompt and ask whether to continue building locally.
