@@ -1,109 +1,110 @@
 # Design Heist
 
-`design-heist` is a Codex skill for rebuilding authorized websites with higher visual fidelity.
+`design-heist` 是一个 Codex Skill，用来更高质量地复刻「你有权限分析和重建」的网站。
 
-It does not simply say "make something similar." It turns a URL or screenshots into a clear clone prompt, waits for your confirmation, then guides Codex through implementation, motion work, verification, and debugging.
+它不是让 AI 随便做一个“差不多”的页面，而是把网页复刻拆成一条更稳的流程：先生成清晰的复刻 prompt，再等你确认是否继续本地实现，然后处理动效、截图验证和问题修复。
 
-## What It Does
+## 它能做什么
 
-Design Heist combines four jobs into one workflow:
+Design Heist 把 4 件事串成一个工作流：
 
-1. **Clone prompt**  
-   It first uses a prompt-first workflow to describe the target page precisely: layout, typography, colors, assets, copy boundaries, motion, responsive behavior, and verification steps.
+1. **生成复刻 prompt**  
+   先把目标页面拆清楚：页面结构、字体、颜色、素材、文案边界、动效、响应式规则和验证要求。
 
-2. **Local implementation**  
-   After you confirm, Codex can use that prompt to build the page locally.
+2. **本地实现页面**  
+   你确认继续后，Codex 可以根据这份 prompt 在本地把页面做出来。
 
-3. **Motion reconstruction**  
-   For complex animation, it routes Codex toward GSAP patterns: timelines, scroll-triggered motion, parallax, staged hero reveals, hover states, and React cleanup.
+3. **处理复杂动效**  
+   如果页面有滚动动画、视差、首屏入场、悬停效果、时间线动画，Codex 会优先按 GSAP 的方式实现，而不是用一堆不稳定的临时 CSS。
 
-4. **Verification and repair**  
-   Before calling the work finished, Codex must run build checks, capture screenshots, compare key states, and debug mismatches from root cause.
+4. **验证和修复**  
+   完成前必须跑构建检查、截图对比、交互检查。发现不一致时，先找根因，再修代码。
 
-## When To Use It
+## 适合用在哪些地方
 
-Use this skill when you want to:
+你可以在这些场景使用它：
 
-- rebuild your own website from a URL
-- turn webpage screenshots into a local prototype
-- recreate an authorized landing page for internal study
-- do visual regression work against a reference page
-- preserve the look, layout, and motion of a page while replacing protected assets
-- give Codex a stricter workflow for high-fidelity frontend reconstruction
+- 复刻你自己的网站
+- 把网页截图还原成本地原型
+- 研究一个已授权的落地页
+- 给旧官网做本地重建
+- 做视觉回归测试
+- 保留某个页面的布局和动效，但替换成自己的素材和文案
+- 让 Codex 用更严格的流程完成高保真前端重建
 
-## When Not To Use It
+## 不适合做什么
 
-Do not use this skill to:
+不要用它做这些事：
 
-- copy third-party websites for public release without permission
-- reuse protected logos, brand names, images, videos, fonts, or copy
-- bypass paywalls, login-only pages, or private assets
-- automate publishing through creator-center UI flows
-- clone backend logic, databases, accounts, payments, or private APIs
+- 未经授权复制第三方网站并公开发布
+- 直接复用别人的 logo、品牌名、图片、视频、字体或文案
+- 绕过登录、付费墙或私有资源
+- 自动操作创作者中心、发布后台或平台 UI
+- 复刻后端逻辑、数据库、账号系统、支付系统或私有 API
 
-If the source page is not yours, treat it as internal reference only and replace protected material before production use.
+如果目标页面不是你的，只能把它当作内部参考。公开发布前，要替换受保护的品牌、素材和文案。
 
-## Why It Helps
+## 它的优势是什么
 
-Normal AI website cloning often fails because it skips the boring but important parts:
+普通 AI 复刻网页容易失败，通常不是因为不会写代码，而是因为跳过了细节：
 
-- exact font and color choices
-- asset sourcing rules
-- scroll and hover states
-- opening animations
-- mobile breakpoints
-- build verification
-- screenshot comparison
-- root-cause debugging
+- 字体不准
+- 颜色只凭感觉
+- 素材来源不清楚
+- 滚动和悬停状态漏掉
+- 首屏动画没还原
+- 移动端断点没检查
+- 没有截图对比
+- 出问题后靠乱调样式
 
-Design Heist makes those steps explicit. The advantage is not magic. The advantage is a stricter workflow with fewer places for vague guesses to hide.
+Design Heist 的优势是把这些步骤变成明确流程。它不保证魔法般 100% 还原，但会显著减少“看起来差不多，其实很多地方不对”的情况。
 
-## Install
+## 安装
 
-Clone this repository into your Codex skills folder:
+把这个仓库克隆到 Codex 的 skills 目录：
 
 ```bash
 mkdir -p ~/.codex/skills
 git clone https://github.com/lt2236465917-design/design-heist.git ~/.codex/skills/design-heist
 ```
 
-Restart Codex after installing.
+安装后重启 Codex。
 
-## Usage
+## 怎么用
 
-Start with:
+在 Codex 里输入：
 
 ```text
 $design-heist
 ```
 
-Examples:
+示例：
 
 ```text
-$design-heist Rebuild this authorized landing page from its URL: https://example.com
+$design-heist 根据这个授权页面生成复刻 prompt：https://example.com
 ```
 
 ```text
-$design-heist Turn these screenshots into a clone prompt, then wait for my confirmation before building.
+$design-heist 根据这几张截图生成复刻 prompt，等我确认后再开始本地实现。
 ```
 
 ```text
-$design-heist Recreate our old homepage locally and verify desktop and mobile screenshots.
+$design-heist 重建我们的旧官网，并验证桌面端和移动端截图。
 ```
 
-## How The Workflow Runs
+## 工作流程
 
-1. You provide a URL, screenshots, or both.
-2. Codex creates a deterministic clone prompt first.
-3. Codex asks whether to continue with local implementation.
-4. If you confirm, Codex builds the page using the current project conventions.
-5. Complex motion is handled with GSAP when needed.
-6. Codex runs build checks and screenshot verification.
-7. If the result is off, Codex debugs the cause instead of randomly tweaking styles.
+1. 你提供 URL、截图，或两者都提供。
+2. Codex 先生成一份确定性的复刻 prompt。
+3. Codex 问你是否继续本地实现。
+4. 你确认后，Codex 按当前项目规范开始开发。
+5. 如果页面有复杂动效，用 GSAP 方案处理。
+6. 完成前跑构建检查和截图验证。
+7. 如果效果不对，先找原因，再修正。
 
-## Dependencies
+## 依赖哪些 Skill
 
-This skill is an orchestrator. It works best when these skills are also installed:
+这是一个编排型 skill。它最好和下面这些 skill 一起使用：
 
 - `web-clone-prompt`
 - `gsap-core`
@@ -112,9 +113,9 @@ This skill is an orchestrator. It works best when these skills are also installe
 - `verification-before-completion`
 - `systematic-debugging`
 
-If some of them are missing, Codex can still follow the workflow, but the result may be less rigorous.
+如果缺少其中一些，Codex 仍然可以按这套流程工作，但复刻质量和验证强度会下降。
 
-## License
+## 开源协议
 
-MIT. Free to use, copy, modify, and share.
+MIT。免费使用、复制、修改和分享。
 
