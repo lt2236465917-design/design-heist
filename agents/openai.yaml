@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Heist"
+  short_description: "Authorized web clone prompt, motion, QA workflow"
+  default_prompt: "Use $design-heist to reconstruct this authorized webpage from a URL or screenshots, then build and verify the clone."
